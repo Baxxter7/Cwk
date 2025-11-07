@@ -14,4 +14,9 @@
       <Folder Include="Controllers\" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Cwk.Domain\Cwk.Domain.csproj" />
+      <ProjectReference Include="..\Cwk.Infrastructure\Cwk.Infrastructure.csproj" />
+    </ItemGroup>
+
 </Project>
