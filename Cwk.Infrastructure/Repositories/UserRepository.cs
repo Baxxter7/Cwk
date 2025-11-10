@@ -13,28 +13,30 @@ public class UserRepository : IUserRepository
     {
         _repository = repository;
     }
-    public Task<User> GetByIdAsync(int id)
-    {
-        throw new NotImplementedException();
-    }
+    public async Task<User?> GetByIdAsync(int id)  =>  await _repository.Users
+        .AsNoTracking()
+        .FirstOrDefaultAsync(u => u.Id == id && u.IsActive );
 
     public async Task<IEnumerable<User>> GetAllAsync() => await _repository.Users
             .AsNoTracking()
-            .Where(e => e.IsActive)
+            .Where(u => u.IsActive)
             .ToListAsync();
 
-    public Task<User> CreateAsync(User user)
+    public async Task<User> CreateAsync(User user)
     {
-        throw new NotImplementedException();
+        await _repository.Users.AddAsync(user);
+        await _repository.SaveChangesAsync();
+        return  user;
     }
 
-    public Task<User> UpdateAsync(User user)
+    public async Task<User> UpdateAsync(User user)
     {
-        throw new NotImplementedException();
+         _repository.Update(user);
+        await _repository.SaveChangesAsync();
+        return user;
     }
 
-    public Task<User> GetByEmailAsync(string email)
-    {
-        throw new NotImplementedException();
-    }
+    public async Task<User?> GetByEmailAsync(string email) =>  await _repository.Users
+        .AsNoTracking()
+        .FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower()  && u.IsActive );
 }
