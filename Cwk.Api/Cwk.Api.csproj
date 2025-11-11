@@ -8,6 +8,7 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.10"/>
+        <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="9.0.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -15,6 +16,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Cwk.Business\Cwk.Business.csproj" />
       <ProjectReference Include="..\Cwk.Domain\Cwk.Domain.csproj" />
       <ProjectReference Include="..\Cwk.Infrastructure\Cwk.Infrastructure.csproj" />
     </ItemGroup>
