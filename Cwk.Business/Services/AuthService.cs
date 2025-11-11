@@ -37,13 +37,14 @@ public class AuthService :IAuthService
         }
     }
 
-    public async Task<UserResponseDto> Register(CreateUserDto createUserDto)
+    public async Task<UserResponseDto?> Register(CreateUserDto createUserDto)
     {
         var user = new User()
         {
             Name = createUserDto.Name,
             Email = createUserDto.Email,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(createUserDto.Password),
+            PhoneNumber = createUserDto.PhoneNumber,
             Role = createUserDto.Role
         };
 

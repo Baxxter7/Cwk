@@ -6,5 +6,5 @@ namespace Cwk.Business.Interfaces;
 public interface IAuthService
 {
     Task<LoginResponseDto> Login(LoginRequestDto loginRequestDto);
-    Task<UserResponseDto> Register(CreateUserDto createUserDto);
+    Task<UserResponseDto?> Register(CreateUserDto createUserDto);
 }
