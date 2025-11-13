@@ -1,0 +1,44 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Components.Authorization;
+
+namespace Cwk.Web.Services;
+
+public class AuthService
+{
+    private readonly AuthenticationStateProvider _authenticationStateProvider;
+
+    public AuthService(AuthenticationStateProvider authenticationStateProvider)
+    {
+        _authenticationStateProvider = authenticationStateProvider;
+    }
+
+    public async Task<bool> IsAuthenticatedAsync()
+    {
+        var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        return user.Identity!.IsAuthenticated;
+    }
+
+    public async Task<string> GetUserNameAsync()
+    {
+        var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        return user.FindFirst("unique_name")?.Value;
+    }
+    
+    public async Task<string?> GetNameAsync()
+    {
+        var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        return user.FindFirst("Nombre")?.Value;
+    }
+    
+    public async Task<string?> GetUserRoleAsync()
+    {
+        var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        return user.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role || c.Type == "role")?.Value;
+    }
+
+
+}
