@@ -1,4 +1,5 @@
 using AutoMapper;
+using Cwk.Domain.DTOs.Request;
 using Cwk.Domain.DTOs.Response;
 using Cwk.Domain.Entities;
 
@@ -9,5 +10,8 @@ public class MappingProfile : Profile
     public MappingProfile()
     {
         CreateMap<User, UserResponseDto>();
+        CreateMap<Amenity, AmenityResponseDto>();
+        CreateMap<AddAmenityDto, Amenity>();
+        CreateMap<UpdateAmenityDto, Amenity>();
     }
 }
