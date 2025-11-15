@@ -14,20 +14,21 @@ public class AmenityRepository : IAmenityRepository
         _context = context;
     }
 
-    public Task<Amenity> GetByAmenityId(int amenityId)
-    {
-        throw new NotImplementedException();
-    }
+    public async Task<Amenity?> GetByAmenityId(int amenityId) => await _context.Amenities.FindAsync(amenityId);
+    
 
-    public Task<Amenity> AddAmenityAsync(Amenity amenity)
+    public async Task<Amenity> AddAmenityAsync(Amenity amenity)
     {
-        throw new NotImplementedException();
+         await _context.AddAsync(amenity);
+         await _context.SaveChangesAsync();
+         return amenity;
     }
 
     public async Task<List<Amenity>> GetAllAmenitiesAsync() => await _context.Amenities.ToListAsync();
     
-    public Task UpdateAmenityAsync(Amenity amenity)
+    public async Task UpdateAmenityAsync(Amenity amenity)
     {
-        throw new NotImplementedException();
+        _context.Amenities.Update(amenity);
+        await _context.SaveChangesAsync();
     }
 }
