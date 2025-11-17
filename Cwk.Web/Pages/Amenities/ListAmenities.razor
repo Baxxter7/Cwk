@@ -45,6 +45,12 @@ else
             <MudTd DataLabel="Id">@context.Id</MudTd>
             <MudTd DataLabel="Name">@context.Name</MudTd>
             <MudTd DataLabel="Description">@context.Description</MudTd>
+            <MudTd>
+                <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                               Color="Color.Warning"
+                               OnClick="() => OpenEditAmenity(context)"
+                               Size="Size.Small" />
+            </MudTd>
         </RowTemplate>
 
         <PagerContent>
@@ -104,5 +110,35 @@ else
             Snackbar.Add($"Error al crear el servicio: {ex.Message}", Severity.Error);
         }
     }
+    
+    private async Task OpenEditAmenity(AmenityResponseDto amenity)
+    {
+        try
+        {
+            var parameters = new DialogParameters { ["Amenity"] = amenity };
+
+            var options = new DialogOptions
+            {
+                CloseButton = true,
+                MaxWidth = MaxWidth.Small,
+                FullWidth = true,
+            };
+
+            var dialog = await DialogService.ShowAsync<EditAmenity>("", parameters, options);
+            var result = await dialog.Result;
+
+            if (!result!.Canceled)
+            {
+                await OnInitializedAsync();
+                Snackbar.Add("Servicio actualizado exitosamente!", Severity.Success);
+                NavigationManager.NavigateTo("/amenities");
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add("Ocurrió un error: " + ex.Message, Severity.Error);
+        }
+    }
+
 
 }
