@@ -22,5 +22,7 @@ builder.Services.AddScoped<AuthenticationStateProvider, AuthenticationProviderJW
 builder.Services.AddScoped<ILoginService, AuthenticationProviderJWT>
     (x => x.GetRequiredService<AuthenticationProviderJWT>());
 
+builder.Services.AddScoped<IRequestService, RequestService>();
+
 
 await builder.Build().RunAsync();
