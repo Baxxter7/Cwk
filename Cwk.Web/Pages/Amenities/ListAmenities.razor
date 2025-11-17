@@ -1,0 +1,108 @@
+@page "/amenities"
+
+@inject IRequestService RequestService
+@inject ISnackbar Snackbar
+@inject NavigationManager NavigationManager
+@inject IDialogService DialogService
+
+<PageTitle>Amenities</PageTitle>
+<MudButton Variant="Variant.Filled"
+           Class="d-flex justify-end"
+           Color="Color.Primary"
+           StartIcon="@Icons.Material.Filled.Add"
+           OnClick="AddOpenDialog">
+</MudButton>
+
+
+@if (_amenities == null)
+{
+    <div class="d-flex justify-center align-center" style="height: 60vh;">
+        <Loading />
+    </div>
+}
+else
+{
+    <MudTable Items="@_amenities" Hover="true" SortLabel="Sort By">
+        <HeaderContent>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<AmenityResponseDto, object>(x => x.Id)">
+                    Id
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<AmenityResponseDto, object>(x => x.Name)">
+                    Nombre
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<AmenityResponseDto, object>(x => x.Description)">
+                    Descripción
+                </MudTableSortLabel>
+            </MudTh>
+        </HeaderContent>
+
+        <RowTemplate>
+            <MudTd DataLabel="Id">@context.Id</MudTd>
+            <MudTd DataLabel="Name">@context.Name</MudTd>
+            <MudTd DataLabel="Description">@context.Description</MudTd>
+        </RowTemplate>
+
+        <PagerContent>
+            <MudTablePager />
+        </PagerContent>
+    </MudTable>
+}
+
+
+
+@code {
+    private IEnumerable<AmenityResponseDto>? _amenities;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAmenities();
+    }
+
+
+    private async Task LoadAmenities()
+    {
+        try
+        {
+            _amenities = await RequestService
+                .GetAsync<IEnumerable<AmenityResponseDto>>("api/Amenities");
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error loading amenities: {ex.Message}", Severity.Error);
+        }
+    }
+    
+    private async Task AddOpenDialog()
+    {
+        try
+        {
+            var parameters = new DialogParameters();
+            var options = new DialogOptions
+            {
+                CloseButton = true,
+                MaxWidth = MaxWidth.ExtraSmall,
+                FullWidth = true,
+            };
+
+            var dialog = await DialogService.ShowAsync<AddAmenity>("", parameters, options);
+            var result = await dialog.Result;
+
+            if (!result!.Canceled)
+            {
+                await OnInitializedAsync();
+                Snackbar.Add("El nuevo servicio se creó exitosamente!", Severity.Success);
+                NavigationManager.NavigateTo("/amenities");
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error al crear el servicio: {ex.Message}", Severity.Error);
+        }
+    }
+
+}

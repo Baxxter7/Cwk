@@ -1,0 +1,113 @@
+@inject IRequestService RequestService
+@inject ISnackbar Snackbar
+@inject NavigationManager NavigationManager
+
+<MudDialog MaxWidth="MaxWidth.Small" FullWidth="true">
+    <TitleContent>
+        <div style="display: flex; align-items: center; gap: 12px; padding: 4px 0;">
+            <MudIcon Icon="@Icons.Material.Filled.Add" Color="Color.Primary" Size="Size.Medium" />
+            <MudText Typo="Typo.h5" Style="margin: 0; font-weight: 500;">
+                Crear Servicio Adicional
+            </MudText>
+        </div>
+    </TitleContent>
+
+    <DialogContent>
+        <MudContainer Style="padding: 0;">
+            <MudGrid Spacing="3">
+
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="_amenityDto.Name"
+                                  Label="Nombre del servicio"
+                                  Variant="Variant.Outlined"
+                                  Required="true"
+                                  RequiredError="El nombre es requerido"
+                                  MaxLength="100"
+                                  Counter="100"
+                                  Immediate="true"
+                                  HelperText="Ingresa un nombre descriptivo para el servicio"
+                                  Adornment="Adornment.Start"
+                                  AdornmentIcon="@Icons.Material.Filled.RoomService"
+                                  AdornmentColor="Color.Primary" />
+                </MudItem>
+
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="_amenityDto.Description"
+                                  Label="Descripción"
+                                  Variant="Variant.Outlined"
+                                  Lines="4"
+                                  MaxLines="6"
+                                  MaxLength="500"
+                                  Counter="500"
+                                  Immediate="true"
+                                  HelperText="Describe brevemente el servicio y sus características"
+                                  Adornment="Adornment.Start"
+                                  AdornmentIcon="@Icons.Material.Filled.Description"
+                                  AdornmentColor="Color.Primary" />
+                </MudItem>
+
+                <!-- Separador visual -->
+                <MudItem xs="12">
+                    <MudDivider Style="margin: 8px 0;" />
+                </MudItem>
+
+            </MudGrid>
+        </MudContainer>
+    </DialogContent>
+
+    <DialogActions>
+
+        <MudButton OnClick="Cancel"
+                   Variant="Variant.Text"
+                   StartIcon="@Icons.Material.Filled.Cancel"
+                   Color="Color.Default"
+                   Style="padding: 16px 24px"
+                   Size="Size.Medium">
+            Cancelar
+        </MudButton>
+
+        <MudButton OnClick="SaveChanges"
+                   Variant="Variant.Filled"
+                   StartIcon="@Icons.Material.Filled.Save"
+                   Color="Color.Primary"
+                   Size="Size.Medium"
+                   Style="margin-left: 8px;">
+            Guardar Servicio
+        </MudButton>
+
+    </DialogActions>
+
+</MudDialog>
+
+
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; } = null!;
+    private AddAmenityDto _amenityDto = new();
+
+    private async Task SaveChanges()
+    {
+        try
+        {
+            var response = await RequestService.PostAsync("api/Amenities", _amenityDto);
+            if (response.IsSuccessStatusCode)
+            {
+                MudDialog.Close(DialogResult.Ok(true));
+            }
+            else
+            {
+                Snackbar.Add($"Error updating amenity: {response.ReasonPhrase}", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error updating amenity: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+}
