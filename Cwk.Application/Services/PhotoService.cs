@@ -19,7 +19,7 @@ public class PhotoService : IPhotoService
         _cloudinary = new Cloudinary(account);
     }
     
-    public async Task<string> UploadPhotoAsync(string imageBase64)
+    public async Task<string> UploadImageAsync(string imageBase64)
     {
         if (string.IsNullOrWhiteSpace(imageBase64))
             throw new ArgumentException("La imagen base64 es inválida o está vacía.", nameof(imageBase64)); 
