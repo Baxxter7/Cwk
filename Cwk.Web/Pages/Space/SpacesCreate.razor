@@ -1,0 +1,99 @@
+﻿
+@inject NavigationManager NavigationManager
+@inject IRequestService RequestService
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="form" Model="newSpace" Class="pa-4">
+            <MudText Typo="Typo.h5" Class="mb-4">Crear Nuevo Espacio</MudText>
+            <MudTextField @bind-Value="newSpace.Name" Label="Nombre del Espacio" Required="true" Variant="Variant.Outlined" Class="mb-3" />
+            <MudTextField @bind-Value="newSpace.Description" Label="Descripción" Required="true" Variant="Variant.Outlined" Class="mb-3" />
+            <MudTextField @bind-Value="newSpace.Location" Label="Ubicación" Required="true" Variant="Variant.Outlined" Class="mb-3" />
+            <MudTextField @bind-Value="newSpace.Capacity" Label="Capacidad" Required="true" />
+            <MudTextField @bind-Value="newSpace.PricePerHour" Label="Precio por Hora($)" Type="number" Required="true" />
+            <MudSelect T="SpaceType" Label="Tipo de Espacio" @bind-Value="newSpace.SpaceType" Required="true" Variant="Variant.Outlined" Class="mb-3">
+                @foreach (SpaceType type in Enum.GetValues(typeof(SpaceType)))
+                {
+                    <MudSelectItem T="SpaceType" Value="type">@type.ToString()</MudSelectItem>
+                }
+            </MudSelect>
+            <MudSelect T="int" Label="Amenidades" SelectedValues="selectedAmenityIds" SelectedValuesChanged="OnAmenitiesChanged" MultiSelection="true" Variant="Variant.Outlined" Class="mb-3">
+                @foreach (var amenity in Amenities)
+                {
+                    <MudSelectItem T="int" Value="amenity.Id">@amenity.Name</MudSelectItem>
+                }
+            </MudSelect>
+            <MudText Typo="Typo.subtitle1" Class="mb-2">Imagen del Espacio</MudText>
+            <MudFileUpload T="IBrowserFile" FilesChanged="OnInputFile">
+                <ActivatorContent>
+                    <MudStack Direction="Direction.Horizontal" Spacing="2" AlignItems="AlignItems.Center">
+                        <MudIconButton Color="Color.Info" Icon="@Icons.Material.Filled.PhotoCamera" />
+                        <MudText Typo="Typo.body1">Seleccionar foto</MudText>
+                    </MudStack>
+                </ActivatorContent>
+            </MudFileUpload>
+            @if (!string.IsNullOrEmpty(imageUrl))
+            {
+                <MudImage Src="@imageUrl" Alt="Imagen del Espacio" Width="200" Height="200" Class="mt-2 mb-3" />
+            }
+            <MudButton OnClick="Submit" Color="Color.Primary" Variant="Variant.Filled">Crear Espacio</MudButton>
+            <MudButton OnClick="@(() => MudDialog.Cancel())" Color="Color.Secondary" Variant="Variant.Text" Class="ml-2">Cancelar</MudButton>
+        </MudForm>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    private AddSpaceDto newSpace = new AddSpaceDto();
+    private string imageUrl = string.Empty;
+    private List<Amenity> Amenities = new();
+    private HashSet<int> selectedAmenityIds = new();
+
+    private MudForm form = null!;
+
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; } = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var url = "api/amenities";
+        Amenities = await RequestService.GetAsync<List<Amenity>>(url);
+    }
+
+    private async Task OnInputFile(IBrowserFile file)
+    {
+        imageUrl = await UploadFiles.UploadImagesAsync(file);
+        newSpace.ImageUrl = imageUrl;
+    }
+
+    private void OnAmenitiesChanged(IEnumerable<int> values)
+    {
+        selectedAmenityIds = values.ToHashSet();
+    }
+
+    private async Task Submit()
+    {
+        if (form.IsValid)
+        {
+            try
+            {
+                newSpace.AmenityIds = selectedAmenityIds.ToList();
+                var response = await RequestService.PostAsync<AddSpaceDto>("api/spaces", newSpace);
+                if (response != null)
+                {
+                    MudDialog.Close(DialogResult.Ok(response));
+                }
+                else
+                {
+                    Snackbar.Add("Error al crear el espacio.", Severity.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"Error: {ex.Message}", Severity.Error);
+            }
+        }
+    }
+
+
+}

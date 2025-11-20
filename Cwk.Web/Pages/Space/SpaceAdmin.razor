@@ -1,0 +1,206 @@
+﻿@page "/admin"
+
+@inject NavigationManager NavigationManager
+@inject IRequestService RequestService
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="pa-4">
+    <!-- Métricas principales -->
+    <MudGrid Spacing="3" Class="mb-6">
+
+        <MudItem xs="12" sm="6" md="3">
+            <MudCard Elevation="3" Style="background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%); color: white; border-radius: 12px;">
+                <MudCardContent Class="pa-4 text-center">
+                    <MudText Typo="Typo.h3" Class="mb-2">85%</MudText>
+                    <MudText Typo="Typo.body2">Ocupación Hoy</MudText>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+
+        <MudItem xs="12" sm="6" md="3">
+            <MudCard Elevation="3" Style="background: linear-gradient(135deg, #06B6D4 0%, #0EA5E9 100%); color: white; border-radius: 12px;">
+                <MudCardContent Class="pa-4 text-center">
+                    <MudText Typo="Typo.h3" Class="mb-2">24</MudText>
+                    <MudText Typo="Typo.body2">Reservas Hoy</MudText>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+
+        <MudItem xs="12" sm="6" md="3">
+            <MudCard Elevation="3" Style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; border-radius: 12px;">
+                <MudCardContent Class="pa-4 text-center">
+                    <MudText Typo="Typo.h3" Class="mb-2">$1,250</MudText>
+                    <MudText Typo="Typo.body2">Ingresos Hoy</MudText>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+
+        <MudItem xs="12" sm="6" md="3">
+            <MudCard Elevation="3" Style="background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: white; border-radius: 12px;">
+                <MudCardContent Class="pa-4 text-center">
+                    <MudText Typo="Typo.h3" Class="mb-2">156</MudText>
+                    <MudText Typo="Typo.body2">Usuarios Activos</MudText>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+
+    </MudGrid>
+
+    <!-- Sección de Reservas y Espacios Populares -->
+    <MudGrid Spacing="3" Class="mb-6">
+
+        <!-- Reservas Recientes -->
+        <MudItem xs="12" md="6">
+            <MudCard Elevation="3" Style="border-radius: 12px; height: 100%;">
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h6">Reservas Recientes</MudText>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+
+        <!-- Espacios Más Populares -->
+        <MudItem xs="12" md="6">
+            <MudCard Elevation="3" Style="border-radius: 12px; height: 100%;">
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h6">Espacios Más Populares</MudText>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+
+    </MudGrid>
+
+    <!-- Gestión de Espacios -->
+    <MudCard Elevation="3" Style="border-radius: 12px;">
+        <MudCardHeader>
+            <CardHeaderContent>
+                <MudText Typo="Typo.h6">Gestión de Espacios</MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+
+        <MudCardContent>
+
+            <!-- Botones de acción -->
+            <MudGrid Class="mb-4" Spacing="2">
+
+                <MudItem xs="12" sm="4">
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               FullWidth="true"
+                               StartIcon="@Icons.Material.Filled.Add"
+                               Style="border-radius: 25px; text-transform: none;"
+                               OnClick="AddSpace">
+                        Agregar Espacio
+                    </MudButton>
+                </MudItem>
+
+                <MudItem xs="12" sm="4">
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Default"
+                               FullWidth="true"
+                               StartIcon="@Icons.Material.Filled.FileDownload"
+                               Style="background-color: #6B7280; color: white; border-radius: 25px; text-transform: none;">
+                        Exportar Datos
+                    </MudButton>
+                </MudItem>
+
+                <MudItem xs="12" sm="4">
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Default"
+                               FullWidth="true"
+                               StartIcon="@Icons.Material.Filled.Settings"
+                               Style="background-color: #6B7280; color: white; border-radius: 25px; text-transform: none;">
+                        Configurar Precios
+                    </MudButton>
+                </MudItem>
+
+            </MudGrid>
+
+            <!-- Tabla de espacios -->
+            <MudTable Items="@spaces" Hover="true" Breakpoint="Breakpoint.Sm" LoadingProgressColor="Color.Info">
+
+                <HeaderContent>
+                    <MudTh>Espacio</MudTh>
+                    <MudTh>Tipo</MudTh>
+                    <MudTh>Precio/hora</MudTh>
+                    <MudTh>Estado</MudTh>
+                    <MudTh>Acciones</MudTh>
+                </HeaderContent>
+
+                <RowTemplate>
+                    <MudTd DataLabel="Espacio">@context.Name</MudTd>
+                    <MudTd DataLabel="Tipo">@context.SpaceType</MudTd>
+                    <MudTd DataLabel="Precio/hora">$@context.PricePerHour</MudTd>
+                    <MudTd DataLabel="Estado">
+                        <MudChip T="string"
+                                 Color="@(context.IsAvailable ? Color.Success : Color.Error)"
+                                 Size="Size.Small">
+                            @(context.IsAvailable ? "Activo" : "Inactivo")
+                        </MudChip>
+                    </MudTd>
+
+                    <MudTd DataLabel="Acciones">
+                      @*   <MudButton Variant="Variant.Filled"
+                                   Color="Color.Default"
+                                   Size="Size.Small"
+                                   OnClick="@(() => EditSpace(context))"
+                                   Style="background-color: #6B7280; color: white; border-radius: 20px;">
+                            Modificar
+                        </MudButton> *@
+                    </MudTd>
+                </RowTemplate>
+
+            </MudTable>
+
+        </MudCardContent>
+
+    </MudCard>
+
+    
+     </MudContainer>
+
+@code {
+    private List<SpaceDetailsDto> spaces = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        var url = "api/spaces";
+        var response = await RequestService.GetAsync<SpaceResponseDto>(url);
+        spaces = response.Spaces;
+    }
+
+    private async Task AddSpace()
+    {
+        try
+        {
+            var parameters = new DialogParameters();
+            var options = new DialogOptions
+            {
+                CloseButton = true,
+                MaxWidth = MaxWidth.ExtraSmall,
+                FullWidth = true,
+            };
+            var dialog = await DialogService.ShowAsync<SpacesCreate>("", parameters, options);
+            var result = await dialog.Result;
+            if (!result!.Canceled)
+            {
+                await OnInitializedAsync();
+                Snackbar.Add("El nuevo espacio se creó exitosamente!", Severity.Success);
+                NavigationManager.NavigateTo("/admin");
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error al crear el espacio: {ex.Message}", Severity.Error);
+        }
+    }
+}
+
