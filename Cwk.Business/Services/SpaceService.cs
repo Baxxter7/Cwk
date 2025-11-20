@@ -24,7 +24,7 @@ public class SpaceService : ISpaceService
     public async Task<SpaceResponseDto> GetAllSpacesAsync()
     {
         var spaces = await _spaceRepository.GetAllSpacesAsync();
-        var spacesDtos = _mapper.Map<List<SpaceResponseDto>>(spaces);
+        var spacesDtos = _mapper.Map<List<SpaceDetailsDto>>(spaces);
         return new SpaceResponseDto{ Spaces = spacesDtos};
     }
 
@@ -50,9 +50,10 @@ public class SpaceService : ISpaceService
         if (spaceDb == null)
             throw new KeyNotFoundException("Space not found");
         
-        //_mapper.Map<Space>(spaceDb);
         _mapper.Map(spaceDto, spaceDb);
-        if(spaceDto.ImageUrl != null)
+
+
+        if (spaceDto.ImageUrl != null)
             spaceDb.ImageUrl = await _photoService.UploadImageAsync(spaceDto.ImageUrl);
         
         await _spaceRepository.UpdateSpaceAsync(spaceDb, spaceDto.AmenityIds);
