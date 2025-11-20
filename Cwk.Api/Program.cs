@@ -17,6 +17,7 @@ var builder = WebApplication.CreateBuilder(args);
 //automapper
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
 
+
 // Add services to the container.
 builder.Services.AddDbContext<AppDbContext>(options => 
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
@@ -29,7 +30,12 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAmenityService, AmenityService>();
+builder.Services.AddScoped<ISpaceService, SpaceService>();
+builder.Services.AddScoped<IPhotoService, PhotoService>();
 builder.Services.AddScoped<IAmenityRepository, AmenityRepository>();
+builder.Services.AddScoped<ISpaceRepository, SpaceRepository>();
+
+
 
 //autenticacion
 var key = builder.Configuration["Jwt:key"];
