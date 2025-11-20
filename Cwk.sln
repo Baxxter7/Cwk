@@ -1,5 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.11205.157 d18.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cwk.Domain", "Cwk.Domain\Cwk.Domain.csproj", "{00771C8D-3A59-4E29-888B-289B35244C3C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cwk.Infrastructure", "Cwk.Infrastructure\Cwk.Infrastructure.csproj", "{9201B91C-E2F6-432E-94FB-857CD9614D2E}"
@@ -42,5 +45,11 @@ Global
 		{75B6B4FA-DC3A-4C0B-A001-AE87E6BFAAE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{75B6B4FA-DC3A-4C0B-A001-AE87E6BFAAE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{75B6B4FA-DC3A-4C0B-A001-AE87E6BFAAE0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {63BE1789-12F4-4CA5-AFF0-D3765604C11F}
 	EndGlobalSection
 EndGlobal

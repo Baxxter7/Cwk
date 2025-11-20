@@ -4,3 +4,6 @@ obj/
 riderModule.iml
 /_ReSharper.Caches/
 .idea/
+*.user
+*.csproj.user
+*.vbproj.user
