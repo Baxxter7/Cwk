@@ -13,5 +13,9 @@ public class MappingProfile : Profile
         CreateMap<Amenity, AmenityResponseDto>();
         CreateMap<AddAmenityDto, Amenity>();
         CreateMap<UpdateAmenityDto, Amenity>();
+        CreateMap<Space, SpaceDetailsDto>();
+        CreateMap<AddSpaceDto, Space>();
+        CreateMap<EditSpaceDto, Space>()
+              .ForMember(dest => dest.ImageUrl, opt => opt.Ignore()); 
     }
 }
