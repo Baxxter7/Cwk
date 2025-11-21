@@ -7,3 +7,4 @@ riderModule.iml
 *.user
 *.csproj.user
 *.vbproj.user
+*vs/
