@@ -10,8 +10,8 @@ public class Space
     public int Capacity { get; set; }
     public string Location { get; set; } = string.Empty;
     public decimal PricePerHour { get; set; }
-    public bool IsAvailable { get; set; }
+    public bool IsActive { get; set; } = true;
     public string? ImageUrl { get; set; }
     public SpaceType SpaceType { get; set; }
-    public SpaceStatus Status { get; set; } = SpaceStatus.Available;
+    public SpaceStatus Status { get; set; } = SpaceStatus.Disponible;
 }
