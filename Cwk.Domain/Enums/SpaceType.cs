@@ -1,13 +1,13 @@
 namespace Cwk.Domain.Enums;
 public enum SpaceType
 {
-    Storage,
-    Office,
-    MeetingRoom,
-    Coworking,
-    EventSpace,
-    Kitchen,
-    Reception,
-    IndividualDesk
+    Bodega,
+    Oficina,
+    SalaDeReuniones,
+    EspacioCompartido,
+    SalonDeEventos,
+    Cocina,
+    Recepcion,
+    EscritorioIndividual
 }
 
