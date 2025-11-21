@@ -53,7 +53,7 @@ public class SpaceService : ISpaceService
         _mapper.Map(spaceDto, spaceDb);
 
 
-        if (spaceDto.ImageUrl != null)
+        if (!string.IsNullOrEmpty(spaceDto.ImageUrl))
             spaceDb.ImageUrl = await _photoService.UploadImageAsync(spaceDto.ImageUrl);
         
         await _spaceRepository.UpdateSpaceAsync(spaceDb, spaceDto.AmenityIds);
