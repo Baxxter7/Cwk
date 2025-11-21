@@ -141,9 +141,9 @@
                     <MudTd DataLabel="Precio/hora">$@context.PricePerHour</MudTd>
                     <MudTd DataLabel="Estado">
                         <MudChip T="string"
-                                 Color="@(context.IsAvailable ? Color.Success : Color.Error)"
+                                 Color="@(context.IsActive ? Color.Success : Color.Error)"
                                  Size="Size.Small">
-                            @(context.IsAvailable ? "Activo" : "Inactivo")
+                            @(context.IsActive ? "Activo" : "Inactivo")
                         </MudChip>
                     </MudTd>
 
