@@ -71,5 +71,23 @@ namespace Cwk.Api.Controllers
             await _amenityService.UpdateAmenityAsync(amenityDto);
             return NoContent();
         }
+
+        [HttpGet("spaceId/{spaceId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetBySpaceId(int spaceId) {
+
+            if (spaceId <= 0)
+                return BadRequest("El identificador de espacio debe ser mayor a cero.");
+
+            var amenities = await _amenityService.GetAmenitesBySpaceIdAsync(spaceId);
+
+            if (amenities == null || amenities.Count == 0)
+                return NotFound($"No se encontraron amenities para el espacio con id {spaceId}.");
+
+            return Ok(amenities);
+        }
     }
 }
