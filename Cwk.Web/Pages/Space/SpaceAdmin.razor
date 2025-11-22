@@ -148,13 +148,13 @@
                     </MudTd>
 
                     <MudTd DataLabel="Acciones">
-                      @*   <MudButton Variant="Variant.Filled"
+                        <MudButton Variant="Variant.Filled"
                                    Color="Color.Default"
                                    Size="Size.Small"
                                    OnClick="@(() => EditSpace(context))"
                                    Style="background-color: #6B7280; color: white; border-radius: 20px;">
                             Modificar
-                        </MudButton> *@
+                        </MudButton>
                     </MudTd>
                 </RowTemplate>
 
@@ -202,5 +202,32 @@
             Snackbar.Add($"Error al crear el espacio: {ex.Message}", Severity.Error);
         }
     }
+    
+    private async Task EditSpace(SpaceDetailsDto spaceDto)
+    {
+        try
+        {
+            var parameters = new DialogParameters { ["Space"] = spaceDto };
+            var options = new DialogOptions
+            {
+                CloseButton = true,
+                MaxWidth = MaxWidth.ExtraSmall,
+                FullWidth = true,
+            };
+            var dialog = await DialogService.ShowAsync<SpacesEdit>("", parameters, options);
+            var result = await dialog.Result;
+            if (!result!.Canceled)
+            {
+                await OnInitializedAsync();
+                Snackbar.Add("El espacio se actualizó exitosamente!", Severity.Success);
+                NavigationManager.NavigateTo("/admin");
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error al editar el espacio: {ex.Message}", Severity.Error);
+        }
+    }
+
 }
 
