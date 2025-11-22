@@ -1,0 +1,136 @@
+﻿@page "/spaces"
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="pa-4">
+    <MudPaper Elevation="2" Class="pa-4 mb-4" Style="background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);">
+        <MudGrid AlignItems="Center" Spacing="3">
+            <MudItem xs="12" sm="3">
+                <MudText Typo="Typo.subtitle1" Class="text-white mb-2">Tipo de Espacio</MudText>
+                <MudSelect @bind-Value="spaceType" Variant="Variant.Filled"
+                           Style="background-color: white; border-radius: 8px;">
+                    @foreach (var type in spaces)
+                    {
+                        <MudSelectItem Value="@type.SpaceType.ToString()">@type.SpaceType.ToString()</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+
+            <MudItem xs="12" sm="3">
+                <MudText Typo="Typo.subtitle1" Class="text-white mb-2">Capacidad</MudText>
+                <MudSelect @bind-Value="capacity" Variant="Variant.Filled"
+                           Style="background-color: white; border-radius: 8px;">
+                    <MudSelectItem Value="@("Cualquiera")">Cualquiera</MudSelectItem>
+                    <MudSelectItem Value="@("1 persona")">1 persona</MudSelectItem>
+                    <MudSelectItem Value="@("2-5 personas")">2-5 personas</MudSelectItem>
+                    <MudSelectItem Value="@("6-10 personas")">6-10 personas</MudSelectItem>
+                </MudSelect>
+            </MudItem>
+
+            <MudItem xs="12" sm="6">
+                <MudText Typo="Typo.subtitle1" Class="text-white mb-2">Precio máximo</MudText>
+                <MudGrid AlignItems="Center" Spacing="2">
+                    <MudItem xs="8">
+                        <MudSlider @bind-Value="maxPrice"
+                                   Min="0" Max="100" Step="5"
+                                   Color="Color.Secondary"
+                                   Style="color: white;" />
+                    </MudItem>
+                    <MudItem xs="4">
+                        <MudText Typo="Typo.body1" Class="text-white">$@maxPrice/hora</MudText>
+                    </MudItem>
+                </MudGrid>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+
+    <MudGrid Spacing="3">
+        @foreach (var space in spaces)
+        {
+            <MudItem xs="12" sm="6" md="4">
+                <MudCard Elevation="3" Style="height: 100%; border-radius: 12px; overflow: hidden;">
+                    <MudCardMedia Image="@space.ImageUrl" Height="200" Style="background-color: #E5E7EB; position: relative;">
+                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+                                                   color: #9CA3AF; text-align: center;">
+                            <MudIcon Icon="@Icons.Material.Filled.Image" Size="Size.Large" />
+                            <MudText Typo="Typo.body2">Imagen del Espacio</MudText>
+                        </div>
+                    </MudCardMedia>
+                    <MudCardContent Class="pa-4" Style="flex-grow: 1;">
+                        <MudText Typo="Typo.h6" Class="mb-2" Color="Color.Primary">
+                            @space.Name
+                        </MudText>
+                        <MudText Typo="Typo.body2" Class="mb-3" Color="Color.Secondary">
+                            @space.Description
+                        </MudText>
+
+                        <MudGrid AlignItems="Center" Justify="Justify.SpaceBetween" Class="mb-3">
+                            <MudItem>
+                                <MudText Typo="Typo.h6" Style="color: #6366F1;">
+                                    $@space.PricePerHour/hora
+                                </MudText>
+                            </MudItem>
+                            <MudItem>
+                                @if (space.Status == SpaceStatus.Disponible)
+                                {
+                                    <MudChip T="string" Color="Color.Success">@space.Status</MudChip>
+                                }
+                                else
+                                {
+                                    <MudChip T="string" Color="Color.Error">@space.Status</MudChip>
+                                }
+                            </MudItem>
+                        </MudGrid>
+                    </MudCardContent>
+                    <MudCardActions Class="pa-4 pt-0">
+                        @if (space.Status == SpaceStatus.Disponible)
+                        {
+                            <MudButton Variant="Variant.Filled"
+                                       Color="Color.Primary"
+                                       FullWidth="true"
+                                       StartIcon="@Icons.Material.Filled.EventAvailable"
+                                       Href="@($"/booking/{space.Id}")"
+                                       Style="border-radius: 8px; text-transform: none; font-weight: 600;">
+                                Reservar
+                            </MudButton>
+                        }
+                        else
+                        {
+                            <MudButton Variant="Variant.Filled"
+                                       Color="Color.Error"
+                                       FullWidth="true"
+                                       StartIcon="@Icons.Material.Filled.EventAvailable"
+                                       Disabled="true"
+                                       Href="@($"/booking/{space.Id}")"
+                                       Style="border-radius: 8px; text-transform: none; font-weight: 600;">
+                                No Disponible
+                            </MudButton>
+                        }
+                    </MudCardActions>
+                </MudCard>
+            </MudItem>
+        }
+    </MudGrid>
+</MudContainer>
+
+@inject NavigationManager NavigationManager
+@inject IRequestService RequestService
+@inject ISnackbar Snackbar
+
+@code {
+    private string spaceType = "Todos";
+    private string capacity = "Cualquiera";
+    private int maxPrice = 50;
+
+    private List<SpaceDetailsDto> spaces = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadSpaces();
+    }
+
+    private async Task LoadSpaces()
+    {
+        var url = "api/spaces";
+        var response = await RequestService.GetAsync<SpaceResponseDto>(url);
+        spaces = response.Spaces;
+    }
+}
