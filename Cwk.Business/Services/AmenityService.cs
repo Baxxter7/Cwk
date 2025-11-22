@@ -4,7 +4,6 @@ using Cwk.Domain.DTOs.Request;
 using Cwk.Domain.DTOs.Response;
 using Cwk.Domain.Entities;
 using Cwk.Domain.Interfaces;
-
 namespace Cwk.Business.Services;
 
 public class AmenityService : IAmenityService
@@ -38,8 +37,14 @@ public class AmenityService : IAmenityService
 
     public async Task<AmenityResponseDto> CreateAmenityAsync(AddAmenityDto amenityDto)
     {
-       var amenity = _mapper.Map<Amenity>(amenityDto);
-       var createdAmenity = await _amenityRepository.AddAmenityAsync(amenity);
-       return _mapper.Map<AmenityResponseDto>(createdAmenity);
+        var amenity = _mapper.Map<Amenity>(amenityDto);
+        var createdAmenity = await _amenityRepository.AddAmenityAsync(amenity);
+        return _mapper.Map<AmenityResponseDto>(createdAmenity);
+    }
+
+    public async Task<List<AmenityResponseDto>> GetAmenitesBySpaceIdAsync(int spaceId)
+    {
+        var amenities = await _amenityRepository.GetAmenitesBySpaceIdAsync(spaceId);
+        return _mapper.Map<List<AmenityResponseDto>>(amenities);
     }
 }
