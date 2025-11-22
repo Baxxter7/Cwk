@@ -8,4 +8,5 @@ public interface IAmenityRepository
     Task<Amenity> AddAmenityAsync(Amenity amenity);
     Task<List<Amenity>> GetAllAmenitiesAsync();
     Task UpdateAmenityAsync(Amenity amenity);
+    Task<List<Amenity>> GetAmenitesBySpaceIdAsync(int spaceId);
 }
