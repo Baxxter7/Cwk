@@ -10,7 +10,7 @@ public interface IReservationService
     Task<ReservationDetailsDto> CreateReservationAsync(CreateReservationRequestDto request);
     Task<ReservationDetailsDto?> UpdateReservationAsync(UpdateReservationRequestDto request);
     Task<bool> DeleteReservationAsync(int id);
-    Task<SpaceAvailabilityDto?> CheckSpaceAvilabilityAsync(int spaceId, DateTime startTime, DateTime endTime);
+    Task<SpaceAvailabilityDto?> CheckSpaceAvailabilityAsync(int spaceId, DateTime startTime, DateTime endTime);
     Task<bool> ConfirmReservationAsync(int reservationId);
     Task<bool> CancelReservationAsync(int reservationId);
 }
