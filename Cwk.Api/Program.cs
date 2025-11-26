@@ -25,6 +25,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 //Repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IReservationRepository,  ReservationRepository>();
+builder.Services.AddScoped<IAmenityRepository, AmenityRepository>();
+builder.Services.AddScoped<ISpaceRepository, SpaceRepository>();
 
 //Services
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -32,8 +35,8 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAmenityService, AmenityService>();
 builder.Services.AddScoped<ISpaceService, SpaceService>();
 builder.Services.AddScoped<IPhotoService, PhotoService>();
-builder.Services.AddScoped<IAmenityRepository, AmenityRepository>();
-builder.Services.AddScoped<ISpaceRepository, SpaceRepository>();
+builder.Services.AddScoped<IReservationService, ReservationService>();
+
 
 
 
