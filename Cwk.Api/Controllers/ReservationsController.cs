@@ -2,6 +2,7 @@
 using Cwk.Domain.DTOs.Request;
 using Cwk.Domain.DTOs.Response;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Cwk.Api.Controllers;
 
@@ -29,7 +30,8 @@ public class ReservationsController : ControllerBase
             return BadRequest(ex.Message);
 
         }
-        catch (ArgumentException ex) { 
+        catch (ArgumentException ex)
+        {
             return NotFound(ex.Message);
         }
     }
@@ -39,6 +41,27 @@ public class ReservationsController : ControllerBase
     {
         var availability = await _reservationService.CheckSpaceAvailabilityAsync(spaceId, startTime, endTime);
         return Ok(availability);
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<ReservationResponseDto>> GetReservations([FromQuery] ReservationQueryDto query)
+    {
+        var reservations = await _reservationService.GetReservationsAsync(query);
+        return Ok(reservations);
+    }
+
+    [HttpPut("{id}/confirm")]
+    public async Task<ActionResult> ConfirmReservation(int id)
+    {
+        var result = await _reservationService.ConfirmReservationAsync(id);
+        return result ? Ok() : NotFound();
+
+    }
+
+    [HttpPut("{id}/cancel")]
+    public async Task<ActionResult>CancelReservation(int id) {
+        var result = await _reservationService.CancelReservationAsync(id);
+        return result ? Ok() : NotFound();
     }
 
 }
