@@ -11,4 +11,7 @@ public interface IRequestService
     Task<object> DeleteAsync(string url);
 
     Task<HttpResponseMessage> PutAsync<T>(string url, T model);
+
+    Task<HttpResponseMessage> PutAsync(string url);
+    Task<TResponse> PostAndReadAsync<TResponse, TRequest>(string url, TRequest model);
 }

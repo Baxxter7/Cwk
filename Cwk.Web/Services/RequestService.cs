@@ -77,4 +77,18 @@ public class RequestService :IRequestService
         return response;
     }
 
+    public async Task<HttpResponseMessage> PutAsync(string url)
+    {
+        await AddAuthorizationHeaderAsync();
+        var response = await _httpClient.PutAsync(url, null);
+        return response;
+    }
+    public async Task<TResponse> PostAndReadAsync<TResponse, TRequest>(string url, TRequest model)
+    {
+        await AddAuthorizationHeaderAsync();
+        var response = await PostAsync(url, model);
+        response.EnsureSuccessStatusCode();
+        var responseContent = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<TResponse>(responseContent, JsonDefaultOptions)!;
+    }
 }
