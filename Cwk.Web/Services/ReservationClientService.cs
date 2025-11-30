@@ -5,9 +5,9 @@ namespace Cwk.Web.Services;
 
 public class ReservationClientService : IReservationClientService
 {
-    private readonly RequestService _requestService;
+    private readonly IRequestService _requestService;
 
-    public ReservationClientService(RequestService requestService)
+    public ReservationClientService(IRequestService requestService)
     {
         _requestService = requestService;
     }
