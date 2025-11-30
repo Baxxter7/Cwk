@@ -23,6 +23,7 @@ builder.Services.AddScoped<ILoginService, AuthenticationProviderJWT>
     (x => x.GetRequiredService<AuthenticationProviderJWT>());
 
 builder.Services.AddScoped<IRequestService, RequestService>();
+builder.Services.AddScoped<IReservationClientService, ReservationClientService>();
 
 
 await builder.Build().RunAsync();
