@@ -1,0 +1,202 @@
+﻿@page "/booking/{SpaceId:int}"
+
+@inject IReservationClientService ReservationService
+@inject IRequestService RequestService
+@inject ISnackbar Snackbar
+@inject AuthService AuthService
+@inject NavigationManager Navigation
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="pa-4">
+    @if (space != null)
+    {
+        <MudPaper Elevation="3" Class="pa-6" Style="border-radius: 12px;">
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudText Typo="Typo.h4" Class="mb-4" Color="Color.Primary">
+                        Reservar: @space.Name
+                    </MudText>
+                </MudItem>
+
+                <MudItem xs="12" md="6">
+                    <MudText Typo="Typo.subtitle1" Class="mb-2">Fecha de Inicio</MudText>
+                    <MudDatePicker @bind-Date="startDate" />
+                </MudItem>
+
+                <MudItem xs="12" md="6">
+                    <MudText Typo="Typo.subtitle1" Class="mb-2">Hora de Inicio</MudText>
+                    <MudTimePicker @bind-Time="startTime" AmPm="true" />
+                </MudItem>
+
+                <MudItem xs="12" md="6">
+                    <MudText Typo="Typo.subtitle1" Class="mb-2">Fecha de Fin</MudText>
+                    <MudDatePicker @bind-Date="endDate" />
+                </MudItem>
+
+                <MudItem xs="12" md="6">
+                    <MudText Typo="Typo.subtitle1" Class="mb-2">Hora de Fin</MudText>
+                    <MudTimePicker @bind-Time="endTime" AmPm="true" />
+                </MudItem>
+
+                @if (totalAmount > 0)
+                {
+                    <MudItem xs="12">
+                        <MudAlert Severity="Severity.Info">
+                            <MudText><strong>Duración:</strong> @quantityHours horas</MudText>
+                            <MudText><strong>Precio por hora:</strong> $@space.PricePerHour</MudText>
+                            <MudText><strong>Total:</strong> $@totalAmount</MudText>
+                        </MudAlert>
+                    </MudItem>
+                }
+
+                <MudItem xs="12">
+                    <MudGrid Justify="Justify.SpaceBetween">
+                        <MudItem>
+                            <MudButton Variant="Variant.Outlined"
+                                       Color="Color.Secondary"
+                                       OnClick="@(() => Navigation.NavigateTo("/spaces"))">
+                                Cancelar
+                            </MudButton>
+                        </MudItem>
+                        <MudItem>
+                            <MudButton Variant="Variant.Filled"
+                                       Color="Color.Primary"
+                                       OnClick="CheckAvailabilityAsync"
+                                       Disabled="@(!IsValidReservation())">
+                                Verificar Disponibilidad
+                            </MudButton>
+                        </MudItem>
+                    </MudGrid>
+                </MudItem>
+
+                @if (availabilityChecked && availability != null)
+                {
+                    <MudItem xs="12">
+                        @if (availability.IsAvailable)
+                        {
+                            <MudAlert Severity="Severity.Success" Class="mb-4">
+                                ¡El espacio está disponible en el horario seleccionado!
+                            </MudAlert>
+                            <MudButton Variant="Variant.Filled"
+                                       Color="Color.Success"
+                                       FullWidth="true"
+                                       OnClick="CreateReservationAsync"
+                                       StartIcon="@Icons.Material.Filled.Check">
+                                Confirmar Reservación
+                            </MudButton>
+                        }
+                        else
+                        {
+                            <MudAlert Severity="Severity.Error" Class="mb-4">
+                                El espacio no está disponible en el horario seleccionado.
+                                <br />
+                                <strong>Reservaciones existentes:</strong>
+                            </MudAlert>
+                            @foreach (var reservation in availability.ExistingReservations)
+                            {
+                                <MudChip T="string" Color="Color.Error" Class="ma-1">
+                                    @reservation.StartTime.ToString("dd/MM/yyyy HH:mm") - @reservation.EndTime.ToString("dd/MM/yyyy HH:mm")
+                                </MudChip>
+                            }
+                        }
+                    </MudItem>
+                }
+            </MudGrid>
+        </MudPaper>
+    }
+</MudContainer>
+
+@code {
+
+    [Parameter] public int SpaceId { get; set; }
+
+    private SpaceDetailsDto space = new();
+    private DateTime? startDate = DateTime.Today;
+    private TimeSpan? startTime = new TimeSpan(9, 0, 0);
+    private DateTime? endDate = DateTime.Today;
+    private TimeSpan? endTime = new TimeSpan(10, 0, 0);
+
+    private int userId;
+
+    private SpaceAvailabilityDto? availability;
+    private bool availabilityChecked = false;
+    private decimal totalAmount = 0;
+    private int quantityHours = 0;
+
+    private async Task LoadSpace()
+    {
+        space = await RequestService.GetAsync<SpaceDetailsDto>($"api/spaces/{SpaceId}");
+    }
+
+    private bool IsValidReservation()
+    {
+        if (startDate == null || endDate == null || startTime == null || endTime == null)
+            return false;
+
+        var start = startDate.Value.Date + startTime.Value;
+        var end = endDate.Value.Date + endTime.Value;
+
+        return start < end && start > DateTime.Now;
+    }
+
+    private void CalculateTotalAmount()
+    {
+        if (space != null && IsValidReservation())
+        {
+            var start = startDate!.Value.Date + startTime!.Value;
+            var end = endDate!.Value.Date + endTime!.Value;
+            quantityHours = (int)Math.Ceiling((end - start).TotalHours);
+            totalAmount = space.PricePerHour * quantityHours;
+        }
+        else
+        {
+            quantityHours = 0;
+            totalAmount = 0;
+        }
+    }
+
+    private async Task CheckAvailabilityAsync()
+    {
+        if (!IsValidReservation()) return;
+
+        var start = startDate!.Value.Date + startTime!.Value;
+        var end = endDate!.Value.Date + endTime!.Value;
+
+        availability = await ReservationService.CheckSpaceAvailabilityAsync(SpaceId, start, end);
+        availabilityChecked = true;
+        CalculateTotalAmount();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        userId = await AuthService.GetUserIdAsync();
+        await LoadSpace();
+        CalculateTotalAmount();
+    }
+
+    private async Task CreateReservationAsync()
+    {
+        if (!IsValidReservation() || availability?.IsAvailable != true) return;
+
+        var start = startDate!.Value.Date + startTime!.Value;
+        var end = endDate!.Value.Date + endTime!.Value;
+
+        var request = new CreateReservationRequestDto
+        {
+            SpaceId = SpaceId,
+            StartTime = start,
+            EndTime = end,
+            UserId = userId
+        };
+
+        try
+        {
+            var reservation = await ReservationService.CreateReservationAsync(request);
+            Snackbar.Add("Reservación creada exitosamente", Severity.Success);
+            Navigation.NavigateTo("/reservations");
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error al crear la reservación: {ex.Message}", Severity.Error);
+        }
+    }
+}
