@@ -39,6 +39,15 @@ public class AuthService
         var user = authState.User;
         return user.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role || c.Type == "role")?.Value;
     }
-
-
+    public async Task<int> GetUserIdAsync()
+    {
+        var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        var userIdClaim = user.FindFirst("UserId")?.Value;
+        if (int.TryParse(userIdClaim, out int userId))
+        {
+            return userId;
+        }
+        return 0;
+    }
 }
