@@ -1,19 +1,31 @@
 ﻿@page "/admin"
 
+
+
+
+
 @inject NavigationManager NavigationManager
 @inject IRequestService RequestService
+@inject IReservationClientService ReservationService
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
+
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="pa-4">
     <!-- Métricas principales -->
     <MudGrid Spacing="3" Class="mb-6">
-
         <MudItem xs="12" sm="6" md="3">
             <MudCard Elevation="3" Style="background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%); color: white; border-radius: 12px;">
                 <MudCardContent Class="pa-4 text-center">
-                    <MudText Typo="Typo.h3" Class="mb-2">85%</MudText>
-                    <MudText Typo="Typo.body2">Ocupación Hoy</MudText>
+                    <MudGrid Spacing="2">
+                        <MudItem xs="8">
+                            <MudText Typo="Typo.h4" Class="font-weight-bold">@stats.TotalReservations</MudText>
+                            <MudText Typo="Typo.body2" Class="opacity-80">Total</MudText>
+                        </MudItem>
+                        <MudItem xs="4" Class="text-right">
+                            <MudIcon Icon="@Icons.Material.Filled.EventNote" Size="Size.Large" />
+                        </MudItem>
+                    </MudGrid>
                 </MudCardContent>
             </MudCard>
         </MudItem>
@@ -21,8 +33,15 @@
         <MudItem xs="12" sm="6" md="3">
             <MudCard Elevation="3" Style="background: linear-gradient(135deg, #06B6D4 0%, #0EA5E9 100%); color: white; border-radius: 12px;">
                 <MudCardContent Class="pa-4 text-center">
-                    <MudText Typo="Typo.h3" Class="mb-2">24</MudText>
-                    <MudText Typo="Typo.body2">Reservas Hoy</MudText>
+                    <MudGrid Spacing="2">
+                        <MudItem xs="8">
+                            <MudText Typo="Typo.h4" Class="font-weight-bold">@stats.ConfirmedReservations</MudText>
+                            <MudText Typo="Typo.body2" Class="opacity-80">Confirmadas</MudText>
+                        </MudItem>
+                        <MudItem xs="4" Class="text-right">
+                            <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Size="Size.Large" />
+                        </MudItem>
+                    </MudGrid>
                 </MudCardContent>
             </MudCard>
         </MudItem>
@@ -30,8 +49,15 @@
         <MudItem xs="12" sm="6" md="3">
             <MudCard Elevation="3" Style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; border-radius: 12px;">
                 <MudCardContent Class="pa-4 text-center">
-                    <MudText Typo="Typo.h3" Class="mb-2">$1,250</MudText>
-                    <MudText Typo="Typo.body2">Ingresos Hoy</MudText>
+                    <MudGrid Spacing="2">
+                        <MudItem xs="8">
+                            <MudText Typo="Typo.h4" Class="font-weight-bold">@stats.PendingReservations</MudText>
+                            <MudText Typo="Typo.body2" Class="opacity-80">Pendientes</MudText>
+                        </MudItem>
+                        <MudItem xs="4" Class="text-right">
+                            <MudIcon Icon="@Icons.Material.Filled.Schedule" Size="Size.Large" />
+                        </MudItem>
+                    </MudGrid>
                 </MudCardContent>
             </MudCard>
         </MudItem>
@@ -39,45 +65,185 @@
         <MudItem xs="12" sm="6" md="3">
             <MudCard Elevation="3" Style="background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: white; border-radius: 12px;">
                 <MudCardContent Class="pa-4 text-center">
-                    <MudText Typo="Typo.h3" Class="mb-2">156</MudText>
-                    <MudText Typo="Typo.body2">Usuarios Activos</MudText>
+                    <MudGrid Spacing="2">
+                        <MudItem xs="8">
+                            <MudText Typo="Typo.h4" Class="font-weight-bold">$@stats.TotalRevenue.ToString("N0")</MudText>
+                            <MudText Typo="Typo.body2" Class="opacity-80">Ingresos</MudText>
+                        </MudItem>
+                        <MudItem xs="4" Class="text-right">
+                            <MudIcon Icon="@Icons.Material.Filled.AttachMoney" Size="Size.Large" />
+                        </MudItem>
+                    </MudGrid>
                 </MudCardContent>
             </MudCard>
         </MudItem>
-
     </MudGrid>
 
     <!-- Sección de Reservas y Espacios Populares -->
     <MudGrid Spacing="3" Class="mb-6">
-
         <!-- Reservas Recientes -->
-        <MudItem xs="12" md="6">
+        <MudItem xs="12" md="12">
             <MudCard Elevation="3" Style="border-radius: 12px; height: 100%;">
                 <MudCardHeader>
                     <CardHeaderContent>
-                        <MudText Typo="Typo.h6">Reservas Recientes</MudText>
+                        <MudGrid AlignItems="Center" Justify="Justify.SpaceBetween">
+                            <MudItem>
+                                <MudText Typo="Typo.h6">
+                                    <MudIcon Icon="@Icons.Material.Filled.List" Class="mr-2" />
+                                    Reservaciones Recientes
+                                </MudText>
+                            </MudItem>
+                            <MudItem>
+                                <MudButton Variant="Variant.Text"
+                                           Color="Color.Primary"
+                                           StartIcon="@Icons.Material.Filled.Refresh"
+                                           OnClick="LoadReservationsAsync">
+                                    Actualizar
+                                </MudButton>
+                            </MudItem>
+                        </MudGrid>
                     </CardHeaderContent>
                 </MudCardHeader>
-                <MudCardContent>
-                </MudCardContent>
+                <MudCardContent Class="pa-0">
+                    @if (isLoading)
+            {
+                <div class="d-flex justify-center pa-8">
+                    <MudProgressCircular Size="Size.Large" Indeterminate="true" />
+                </div>
+            }
+            else if (!reservations.Any())
+            {
+                <div class="text-center pa-8">
+                    <MudIcon Icon="@Icons.Material.Filled.EventBusy" Size="Size.Large" Style="color: #9CA3AF;" />
+                    <MudText Typo="Typo.h6" Class="mt-4" Style="color: #6B7280;">
+                        No se encontraron reservaciones
+                    </MudText>
+                    <MudText Typo="Typo.body1" Style="color: #9CA3AF;">
+                        Intenta ajustar los filtros o crear una nueva reservación
+                    </MudText>
+                </div>
+            }
+            else
+            {
+                <MudTable Items="@reservations" Hover="true" Dense="true" Striped="true">
+                    <HeaderContent>
+                        <MudTh>
+                            <MudTableSortLabel SortBy="new Func<ReservationDetailsDto, object>(x => x.Id)">
+                                ID
+                            </MudTableSortLabel>
+                        </MudTh>
+                        <MudTh>Espacio</MudTh>
+                        <MudTh>Usuario</MudTh>
+                        <MudTh>
+                            <MudTableSortLabel SortBy="new Func<ReservationDetailsDto, object>(x => x.StartTime)">
+                                Fecha/Hora
+                            </MudTableSortLabel>
+                        </MudTh>
+                        <MudTh>Duración</MudTh>
+                        <MudTh>
+                            <MudTableSortLabel SortBy="new Func<ReservationDetailsDto, object>(x => x.TotalAmount)">
+                                Monto
+                            </MudTableSortLabel>
+                        </MudTh>
+                        <MudTh>Estado</MudTh>
+                        <MudTh>Acciones</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="ID">
+                            <MudChip T="string" Size="Size.Small" Color="Color.Default">
+                                #@context.Id
+                            </MudChip>
+                        </MudTd>
+                        <MudTd DataLabel="Espacio">
+                            <div>
+                                <MudText Typo="Typo.body2" Class="font-weight-medium">
+                                    @context.SpaceName
+                                </MudText>
+                                <MudText Typo="Typo.caption" Style="color: #6B7280;">
+                                    @context.SpaceLocation
+                                </MudText>
+                            </div>
+                        </MudTd>
+                        <MudTd DataLabel="Usuario">
+                            <div class="d-flex align-center">
+                                <MudAvatar Size="Size.Small" Style="background-color: #E5E7EB; color: #6B7280;">
+                                    @GetUserInitials(context.UserName)
+                                </MudAvatar>
+                                <div class="ml-2">
+                                    <MudText Typo="Typo.body2">@context.UserName</MudText>
+                                </div>
+                            </div>
+                        </MudTd>
+                        <MudTd DataLabel="Fecha/Hora">
+                            <div>
+                                <MudText Typo="Typo.body2" Class="font-weight-medium">
+                                    @context.StartTime.ToString("dd/MM/yyyy")
+                                </MudText>
+                                <MudText Typo="Typo.caption" Style="color: #6B7280;">
+                                    @context.StartTime.ToString("HH:mm") - @context.EndTime.ToString("HH:mm")
+                                </MudText>
+                            </div>
+                        </MudTd>
+                        <MudTd DataLabel="Duración">
+                            <MudChip T="string" Size="Size.Small" Color="Color.Info">
+                                @context.QuantityHours h
+                            </MudChip>
+                        </MudTd>
+                        <MudTd DataLabel="Monto">
+                            <MudText Typo="Typo.body1" Class="font-weight-bold" Style="color: #059669;">
+                                $@context.TotalAmount.ToString("N0")
+                            </MudText>
+                        </MudTd>
+                        <MudTd DataLabel="Estado">
+                            @{
+                                var (chipColor, chipIcon) = GetStatusStyle(context.ReservationStatus);
+                            }
+                            <MudChip T="string" Size="Size.Small" Color="chipColor" Icon="chipIcon">
+                                @GetStatusDisplay(context.ReservationStatus)
+                            </MudChip>
+                        </MudTd>
+                        <MudTd DataLabel="Acciones">
+                            <MudButtonGroup Size="Size.Small" Variant="Variant.Text">
+                                @if (context.ReservationStatus == ReservationStatus.Pending)
+                                {
+                                    <MudTooltip Text="Confirmar reservación">
+                                        <MudIconButton Icon="@Icons.Material.Filled.CheckCircle" 
+                                                       Color="Color.Success" 
+                                                       Size="Size.Small"
+                                                       OnClick="@(() => ConfirmReservationAsync(context.Id))" />
+                                    </MudTooltip>
+                                }
+                                
+                                @if (context.ReservationStatus != ReservationStatus.Cancelled && 
+                                     context.ReservationStatus != ReservationStatus.Completed)
+                                {
+                                    <MudTooltip Text="Cancelar reservación">
+                                        <MudIconButton Icon="@Icons.Material.Filled.Cancel" 
+                                                       Color="Color.Error" 
+                                                       Size="Size.Small"
+                                                       OnClick="@(() => CancelReservationAsync(context.Id))" />
+                                    </MudTooltip>
+                                }
+                                
+                                <MudTooltip Text="Ver detalles">
+                                    <MudIconButton Icon="@Icons.Material.Filled.Visibility" 
+                                                   Color="Color.Info" 
+                                                   Size="Size.Small"
+                                                   OnClick="@(() => ViewReservationDetails(context))" />
+                                </MudTooltip>
+                            </MudButtonGroup>
+                        </MudTd>
+                    </RowTemplate>
+                    <PagerContent>
+                        <MudTablePager PageSizeOptions="new int[]{10, 25, 50, 100}" />
+                    </PagerContent>
+                </MudTable>
+            }
+            </MudCardContent>
             </MudCard>
         </MudItem>
-
-        <!-- Espacios Más Populares -->
-        <MudItem xs="12" md="6">
-            <MudCard Elevation="3" Style="border-radius: 12px; height: 100%;">
-                <MudCardHeader>
-                    <CardHeaderContent>
-                        <MudText Typo="Typo.h6">Espacios Más Populares</MudText>
-                    </CardHeaderContent>
-                </MudCardHeader>
-                <MudCardContent>
-                </MudCardContent>
-            </MudCard>
-        </MudItem>
-
+       
     </MudGrid>
-
     <!-- Gestión de Espacios -->
     <MudCard Elevation="3" Style="border-radius: 12px;">
         <MudCardHeader>
@@ -85,12 +251,9 @@
                 <MudText Typo="Typo.h6">Gestión de Espacios</MudText>
             </CardHeaderContent>
         </MudCardHeader>
-
         <MudCardContent>
-
             <!-- Botones de acción -->
             <MudGrid Class="mb-4" Spacing="2">
-
                 <MudItem xs="12" sm="4">
                     <MudButton Variant="Variant.Filled"
                                Color="Color.Primary"
@@ -101,7 +264,6 @@
                         Agregar Espacio
                     </MudButton>
                 </MudItem>
-
                 <MudItem xs="12" sm="4">
                     <MudButton Variant="Variant.Filled"
                                Color="Color.Default"
@@ -111,7 +273,6 @@
                         Exportar Datos
                     </MudButton>
                 </MudItem>
-
                 <MudItem xs="12" sm="4">
                     <MudButton Variant="Variant.Filled"
                                Color="Color.Default"
@@ -121,12 +282,10 @@
                         Configurar Precios
                     </MudButton>
                 </MudItem>
-
             </MudGrid>
 
             <!-- Tabla de espacios -->
             <MudTable Items="@spaces" Hover="true" Breakpoint="Breakpoint.Sm" LoadingProgressColor="Color.Info">
-
                 <HeaderContent>
                     <MudTh>Espacio</MudTh>
                     <MudTh>Tipo</MudTh>
@@ -134,19 +293,15 @@
                     <MudTh>Estado</MudTh>
                     <MudTh>Acciones</MudTh>
                 </HeaderContent>
-
                 <RowTemplate>
                     <MudTd DataLabel="Espacio">@context.Name</MudTd>
                     <MudTd DataLabel="Tipo">@context.SpaceType</MudTd>
                     <MudTd DataLabel="Precio/hora">$@context.PricePerHour</MudTd>
                     <MudTd DataLabel="Estado">
-                        <MudChip T="string"
-                                 Color="@(context.IsActive ? Color.Success : Color.Error)"
-                                 Size="Size.Small">
+                        <MudChip T="string" Color="@(context.IsActive? Color.Success: Color.Error)" Size="Size.Small">
                             @(context.IsActive ? "Activo" : "Inactivo")
                         </MudChip>
                     </MudTd>
-
                     <MudTd DataLabel="Acciones">
                         <MudButton Variant="Variant.Filled"
                                    Color="Color.Default"
@@ -157,24 +312,55 @@
                         </MudButton>
                     </MudTd>
                 </RowTemplate>
-
             </MudTable>
-
         </MudCardContent>
-
     </MudCard>
-
-    
-     </MudContainer>
+</MudContainer>
 
 @code {
-    private List<SpaceDetailsDto> spaces = [];
+     private List<SpaceDetailsDto> spaces = [];
+     private ReservationStats stats = new();
+     private List<ReservationDetailsDto> reservations = new();
+     private bool isLoading = true;
 
-    protected override async Task OnInitializedAsync()
+   
+    // Filtros
+    private ReservationStatus? selectedStatus;
+    private DateTime? filterDate;
+
+    
+     protected override async Task OnInitializedAsync()
+     {
+            var url = "api/spaces";
+            var response = await RequestService.GetAsync<SpaceResponseDto>(url);
+            spaces = response.Spaces;
+            await LoadReservationsAsync();
+     }
+
+    private async Task LoadReservationsAsync()
     {
-        var url = "api/spaces";
-        var response = await RequestService.GetAsync<SpaceResponseDto>(url);
-        spaces = response.Spaces;
+        isLoading = true;
+        try
+        {
+            var query = new ReservationQueryDto
+            {
+                Status = selectedStatus,
+                StartDate = filterDate
+            };
+
+            var response = await ReservationService.GetReservationsAsync(query);
+            reservations = response.Reservations.OrderByDescending(r => r.StartTime).Take(100).ToList();
+
+            CalculateStats();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error al cargar reservaciones: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isLoading = false;
+        }
     }
 
     private async Task AddSpace()
@@ -202,7 +388,7 @@
             Snackbar.Add($"Error al crear el espacio: {ex.Message}", Severity.Error);
         }
     }
-    
+
     private async Task EditSpace(SpaceDetailsDto spaceDto)
     {
         try
@@ -229,5 +415,104 @@
         }
     }
 
-}
+    private string GetUserInitials(string userName)
+    {
+        if (string.IsNullOrWhiteSpace(userName)) return "?";
 
+        var parts = userName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length >= 2)
+            return $"{parts[0][0]}{parts[1][0]}".ToUpper();
+
+        return parts[0][0].ToString().ToUpper();
+    }
+
+    private (Color color, string icon) GetStatusStyle(ReservationStatus status)
+    {
+        return status switch
+        {
+            ReservationStatus.Pending => (Color.Warning, Icons.Material.Filled.Schedule),
+            ReservationStatus.Confirmed => (Color.Success, Icons.Material.Filled.CheckCircle),
+            ReservationStatus.Cancelled => (Color.Error, Icons.Material.Filled.Cancel),
+            ReservationStatus.Completed => (Color.Info, Icons.Material.Filled.Done),
+            _ => (Color.Default, Icons.Material.Filled.Help)
+        };
+    }
+
+    private string GetStatusDisplay(ReservationStatus status)
+    {
+        return status switch
+        {
+            ReservationStatus.Pending => "Pendiente",
+            ReservationStatus.Confirmed => "Confirmada",
+            ReservationStatus.Cancelled => "Cancelada",
+            ReservationStatus.Completed => "Completada",
+            _ => status.ToString()
+        };
+    }
+
+    private async Task ViewReservationDetails(ReservationDetailsDto reservation)
+    {
+        try
+        {
+            var parameters = new DialogParameters { ["Reservation"] = reservation };
+            var options = new DialogOptions
+            {
+                CloseButton = true,
+                MaxWidth = MaxWidth.Small,
+                FullWidth = true,
+            };
+            var dialog = await DialogService.ShowAsync<BookingDetails>("Detalles", parameters, options);
+            var result = await dialog.Result;
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add("Ocurrió un error: " + ex.Message, Severity.Error);
+        }
+
+    }
+
+    private async Task CancelReservationAsync(int reservationId)
+    {
+        var success = await ReservationService.CancelReservationAsync(reservationId);
+        if (success)
+        {
+            Snackbar.Add("Reservación cancelada exitosamente", Severity.Warning);
+            await LoadReservationsAsync();
+        }
+        else
+        {
+            Snackbar.Add("Error al cancelar la reservación", Severity.Error);
+        }
+    }
+
+    private async Task ConfirmReservationAsync(int reservationId)
+    {
+        var success = await ReservationService.ConfirmReservationAsync(reservationId);
+        if (success)
+        {
+            Snackbar.Add("Reservación confirmada exitosamente", Severity.Success);
+            await LoadReservationsAsync();
+        }
+        else
+        {
+            Snackbar.Add("Error al confirmar la reservación", Severity.Error);
+        }
+    }
+
+    public class ReservationStats
+    {
+        public int TotalReservations { get; set; }
+        public int ConfirmedReservations { get; set; }
+        public int PendingReservations { get; set; }
+        public decimal TotalRevenue { get; set; }
+    }
+
+    private void CalculateStats()
+    {
+        stats.TotalReservations = reservations.Count;
+        stats.ConfirmedReservations = reservations.Count(r => r.ReservationStatus == ReservationStatus.Confirmed);
+        stats.PendingReservations = reservations.Count(r => r.ReservationStatus == ReservationStatus.Pending);
+        stats.TotalRevenue = reservations.Where(r => r.ReservationStatus != ReservationStatus.Cancelled)
+                                       .Sum(r => r.TotalAmount);
+    }
+}
